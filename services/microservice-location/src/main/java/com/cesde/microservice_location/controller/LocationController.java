@@ -31,6 +31,11 @@ public class LocationController {
 		 return ResponseEntity.ok(locationService.createLocation(locationDTO));
 	 }
 	 
+	 @GetMapping("/{id}")
+	 public ResponseEntity<LocationResponseDTO> findById(@PathVariable Integer id){
+		 return ResponseEntity.ok(locationService.findById(id));
+	 }
+	 
 	 @GetMapping
 	 public ResponseEntity<PageResponseDTO<LocationResponseDTO>> getAllLocations(
 	         @RequestParam(defaultValue = "0") int page,
