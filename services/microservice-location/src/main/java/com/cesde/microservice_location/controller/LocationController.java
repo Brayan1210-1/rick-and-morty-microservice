@@ -2,6 +2,7 @@ package com.cesde.microservice_location.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cesde.microservice_location.DTO.LocationRequestDTO;
 import com.cesde.microservice_location.DTO.LocationResponseDTO;
 import com.cesde.microservice_location.DTO.PageResponseDTO;
+import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrlDTO;
 import com.cesde.microservice_location.service.LocationService;
 
 import jakarta.validation.Valid;
@@ -37,5 +39,10 @@ public class LocationController {
 	     return ResponseEntity.ok(locationService.findAll(page, size));
 	 }
 	 
+	 @GetMapping("/info/{id}")
+	 public ResponseEntity<LocationNameUrlDTO> getNameAndUrl(@PathVariable Integer id){
+		 
+		 return ResponseEntity.ok(locationService.getUrlAndName(id));
+	 }
 	 
 }

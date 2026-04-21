@@ -12,6 +12,8 @@ import com.cesde.microservice_location.DTO.InfoPageDTO;
 import com.cesde.microservice_location.DTO.LocationRequestDTO;
 import com.cesde.microservice_location.DTO.LocationResponseDTO;
 import com.cesde.microservice_location.DTO.PageResponseDTO;
+import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrl;
+import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrlDTO;
 import com.cesde.microservice_location.entity.LocationRickAndMorty;
 import com.cesde.microservice_location.mapper.LocationMapper;
 import com.cesde.microservice_location.repository.LocationRepository;
@@ -24,6 +26,13 @@ public class LocationService {
 
 	private final LocationRepository locationRepo;
 	private final LocationMapper locationMapper;
+	
+	public LocationNameUrlDTO getUrlAndName(Integer id) {
+		LocationNameUrl locationInfo = locationRepo.findNameAndUrlById(id)
+				.orElseThrow(() -> new RuntimeException("Localizacion no encontrada"));
+		
+		return new LocationNameUrlDTO(locationInfo.getName(), locationInfo.getUrl());
+	}
 	
 	public PageResponseDTO<LocationResponseDTO> findAll (int page, int size){
 		
