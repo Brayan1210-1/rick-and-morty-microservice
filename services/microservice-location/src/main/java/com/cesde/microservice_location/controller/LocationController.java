@@ -1,13 +1,16 @@
 package com.cesde.microservice_location.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cesde.microservice_location.DTO.LocationRequestDTO;
 import com.cesde.microservice_location.DTO.LocationResponseDTO;
+import com.cesde.microservice_location.DTO.PageResponseDTO;
 import com.cesde.microservice_location.service.LocationService;
 
 import jakarta.validation.Valid;
@@ -24,6 +27,14 @@ public class LocationController {
 	 public ResponseEntity<LocationResponseDTO> createLocation (@RequestBody @Valid LocationRequestDTO locationDTO){
 		 
 		 return ResponseEntity.ok(locationService.createLocation(locationDTO));
+	 }
+	 
+	 @GetMapping
+	 public ResponseEntity<PageResponseDTO<LocationResponseDTO>> getAllLocations(
+	         @RequestParam(defaultValue = "0") int page,
+	         @RequestParam(defaultValue = "5") int size) {
+	     
+	     return ResponseEntity.ok(locationService.findAll(page, size));
 	 }
 	 
 	 
