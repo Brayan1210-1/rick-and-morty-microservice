@@ -14,6 +14,7 @@ import com.cesde.microservice_character.DTO.Response.LocationDTO;
 import com.cesde.microservice_character.DTO.Response.PageResponseDTO;
 import com.cesde.microservice_character.DTO.request.CharacterRequestDTO;
 import com.cesde.microservice_character.entity.CharacterRickAndMorty;
+import com.cesde.microservice_character.exception.custom.NotFound;
 import com.cesde.microservice_character.mapper.CharacterMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class CharacterService {
 	    info.setCount(charactersPage.getTotalElements());
 	    info.setPages(charactersPage.getTotalPages());
 	    
-	    String baseUrl = "http://localhost:8081/api/characters?page=";
+	    String baseUrl = "http://localhost:8081/api/character?page=";
 	    info.setNext(charactersPage.hasNext() ? baseUrl + (page + 1) : null);
 	    info.setPrev(charactersPage.hasPrevious() ? baseUrl + (page - 1) : null);
 
@@ -76,6 +77,21 @@ public class CharacterService {
         response.setEpisode(this.buildEpisodes(entity.getEpisodesIds()));
         return response;
     }
+	
+	public CharacterResponseDTO findById(Integer id) {
+		
+		CharacterRickAndMorty entity = characterRepo.findById(id).
+				orElseThrow(() -> new NotFound("No existe personaje con ese id"));
+		
+		CharacterResponseDTO response = characterMapper.toResponse(entity);
+		
+		//Recordatorio de usar el OpenFeig para llenar los datos con los otros micros
+		response.setOrigin(this.buildLocation(entity.getOrigin()));
+		response.setLocation(this.buildLocation(entity.getLocation()));
+		response.setEpisode(this.buildEpisodes(entity.getEpisodesIds()));
+		
+		return response;
+	}
 	
 	private LocationDTO buildLocation(Integer locationId) {
         if (locationId == null) return null;
