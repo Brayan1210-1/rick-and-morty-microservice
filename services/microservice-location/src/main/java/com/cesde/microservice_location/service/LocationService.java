@@ -15,6 +15,7 @@ import com.cesde.microservice_location.DTO.PageResponseDTO;
 import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrl;
 import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrlDTO;
 import com.cesde.microservice_location.entity.LocationRickAndMorty;
+import com.cesde.microservice_location.exception.NotFound;
 import com.cesde.microservice_location.mapper.LocationMapper;
 import com.cesde.microservice_location.repository.LocationRepository;
 
@@ -29,10 +30,22 @@ public class LocationService {
 	
 	public LocationNameUrlDTO getUrlAndName(Integer id) {
 		LocationNameUrl locationInfo = locationRepo.findNameAndUrlById(id)
-				.orElseThrow(() -> new RuntimeException("Localizacion no encontrada"));
+				.orElseThrow(() -> new NotFound("Localizacion no encontrada"));
 		
 		return new LocationNameUrlDTO(locationInfo.getName(), locationInfo.getUrl());
 	}
+	
+	public LocationResponseDTO findById(Integer id) {
+		
+		LocationRickAndMorty entity = locationRepo.findById(id)
+				.orElseThrow(() -> new NotFound("Localizacion no encontrada con el id: " + id));
+		
+		LocationResponseDTO response = locationMapper.toResponse(entity);
+		response.setResidents(this.buildResidentsUrls(entity.getResidents()));
+		
+		return response;
+	}
+	
 	
 	public PageResponseDTO<LocationResponseDTO> findAll (int page, int size){
 		
@@ -71,7 +84,7 @@ public class LocationService {
 		LocationRickAndMorty entity = locationMapper.toEntity(locationDTO);
 		locationRepo.save(entity);
 		
-		entity.setUrl("http://localhost:8082/api/locations/" + entity.getId());
+		entity.setUrl("http://localhost:8082/api/location/" + entity.getId());
 		entity = locationRepo.save(entity);
 		
 		LocationResponseDTO response = locationMapper.toResponse(entity);
