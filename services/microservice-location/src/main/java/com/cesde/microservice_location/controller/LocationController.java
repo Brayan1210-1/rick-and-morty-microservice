@@ -1,5 +1,7 @@
 package com.cesde.microservice_location.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cesde.microservice_location.DTO.LocationRequestDTO;
 import com.cesde.microservice_location.DTO.LocationResponseDTO;
 import com.cesde.microservice_location.DTO.PageResponseDTO;
+import com.cesde.microservice_location.DTO.tocharacter.LocationBulkProjection;
 import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrlDTO;
 import com.cesde.microservice_location.service.LocationService;
 
@@ -42,6 +45,11 @@ public class LocationController {
 	         @RequestParam(defaultValue = "5") int size) {
 	     
 	     return ResponseEntity.ok(locationService.findAll(page, size));
+	 }
+	 
+	 @GetMapping("/bulk")
+	 public List<LocationBulkProjection> getLocationsBulks (@RequestParam List<Integer> ids){
+		 return locationService.findAllByIds(ids);
 	 }
 	 
 	 @GetMapping("/info/{id}")
