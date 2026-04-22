@@ -12,6 +12,7 @@ import com.cesde.microservice_location.DTO.InfoPageDTO;
 import com.cesde.microservice_location.DTO.LocationRequestDTO;
 import com.cesde.microservice_location.DTO.LocationResponseDTO;
 import com.cesde.microservice_location.DTO.PageResponseDTO;
+import com.cesde.microservice_location.DTO.tocharacter.LocationBulkProjection;
 import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrl;
 import com.cesde.microservice_location.DTO.tocharacter.LocationNameUrlDTO;
 import com.cesde.microservice_location.entity.LocationRickAndMorty;
@@ -46,6 +47,13 @@ public class LocationService {
 		return response;
 	}
 	
+	public List<LocationBulkProjection> findAllByIds(List<Integer> ids){
+		if (ids == null || ids.isEmpty()) {
+	        return Collections.emptyList();
+	    }
+		
+		return locationRepo.findAllByIdIn(ids);
+	}
 	
 	public PageResponseDTO<LocationResponseDTO> findAll (int page, int size){
 		

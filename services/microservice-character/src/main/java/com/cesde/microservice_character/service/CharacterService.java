@@ -1,6 +1,13 @@
 package com.cesde.microservice_character.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.cesde.microservice_character.repository.CharacterRepository;
 import com.cesde.microservice_character.DTO.Response.CharacterResponseDTO;
 import com.cesde.microservice_character.DTO.Response.InfoPageDTO;
+import com.cesde.microservice_character.DTO.Response.LocationBulkResponseDTO;
 import com.cesde.microservice_character.DTO.Response.LocationDTO;
 import com.cesde.microservice_character.DTO.Response.PageResponseDTO;
 import com.cesde.microservice_character.DTO.request.CharacterRequestDTO;
@@ -32,34 +40,31 @@ public class CharacterService {
 		
 	    Pageable pageable = PageRequest.of(page, size);
 	    
-	    Page<CharacterRickAndMorty> charactersPage = characterRepo.findAll(pageable);
-	    
-	    List<CharacterResponseDTO> results = charactersPage.getContent()
-	            .stream()
+	    Page<CharacterRickAndMorty> charPage = characterRepo.findAll(pageable);
+	    List<CharacterRickAndMorty> entities = charPage.getContent();
+
+	    Set<Integer> ids = collectLocationIds(entities);
+	    Map<Integer, LocationDTO> locationMap = fetchLocationsMap(ids);
+
+	  
+	    List<CharacterResponseDTO> results = entities.stream()
 	            .map(entity -> {
 	                CharacterResponseDTO dto = characterMapper.toResponse(entity);
+	                // Buscamos en el mapa, si no está, usamos tu buildLocation(id) de siempre
+	                dto.setOrigin(locationMap.getOrDefault(entity.getOrigin(), this.buildLocation(entity.getOrigin())));
+	                dto.setLocation(locationMap.getOrDefault(entity.getLocation(), this.buildLocation(entity.getLocation())));
 	                
-	                dto.setOrigin(this.buildLocation(entity.getOrigin()));
-	                dto.setLocation(this.buildLocation(entity.getLocation()));
+	                // Los episodios siguen igual por ahora (placeholders)
 	                dto.setEpisode(this.buildEpisodes(entity.getEpisodesIds()));
-	                
 	                return dto;
-	            })
-	            .toList();
-	    
-	    InfoPageDTO info = new InfoPageDTO();
-	    info.setCount(charactersPage.getTotalElements());
-	    info.setPages(charactersPage.getTotalPages());
-	    
-	    String baseUrl = "http://localhost:8081/api/character?page=";
-	    info.setNext(charactersPage.hasNext() ? baseUrl + (page + 1) : null);
-	    info.setPrev(charactersPage.hasPrevious() ? baseUrl + (page - 1) : null);
+	            }).toList();
 
 	    PageResponseDTO<CharacterResponseDTO> response = new PageResponseDTO<>();
-	    response.setInfo(info);
+	    response.setInfo(buildInfo(charPage, page));
 	    response.setResults(results);
 
 	    return response;
+	    
 	}
 
 	public CharacterResponseDTO createCharacter(CharacterRequestDTO request) {
@@ -114,6 +119,49 @@ public class CharacterService {
                 .map(id -> "http://localhost:9000/api/v1/episodes/" + id)
                 .toList();
     }
+	
+	private Set<Integer> collectLocationIds(List<CharacterRickAndMorty> characters) {
+	    Set<Integer> ids = new HashSet<>();
+	    for (CharacterRickAndMorty c : characters) {
+	        if (c.getOrigin() != null) ids.add(c.getOrigin());
+	        if (c.getLocation() != null) ids.add(c.getLocation());
+	    }
+	    return ids;
+	}
+	
+	private InfoPageDTO buildInfo(Page<CharacterRickAndMorty> page, int currentPage) {
+	    InfoPageDTO info = new InfoPageDTO();
+	    info.setCount(page.getTotalElements());
+	    info.setPages(page.getTotalPages());
+	    
+	    String baseUrl = "http://localhost:8081/api/character?page=";
+	    info.setNext(page.hasNext() ? baseUrl + (currentPage + 1) : null);
+	    info.setPrev(page.hasPrevious() ? baseUrl + (currentPage - 1) : null);
+	    return info;
+	}
+	
+	//metodo auxiliar para el findAll y no matar el ms-location
+	private Map<Integer, LocationDTO> fetchLocationsMap(Collection<Integer> ids) {
+	    if (ids == null || ids.isEmpty()) return Collections.emptyMap();
+
+	    try {
+	    	
+	        List<LocationBulkResponseDTO> bulkResponse = locationClient.getLocationsBulk(new ArrayList<>(ids));
+
+	        return bulkResponse.stream().collect(Collectors.toMap(
+	            LocationBulkResponseDTO::getId,
+	            res -> {
+	                LocationDTO dto = new LocationDTO();
+	                dto.setName(res.getName());
+	                dto.setUrl(res.getUrl());
+	                return dto;
+	            }
+	        ));
+	    } catch (Exception e) {
+	      
+	        return Collections.emptyMap();
+	    }
+	}
 	
 	
 
