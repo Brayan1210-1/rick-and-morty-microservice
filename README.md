@@ -39,5 +39,9 @@ DB_PASSWORD=contrasenasegura
 * localizaciones: http://localhost:8082/swagger-ui/index.html#/
 * character: http://localhost:8081/swagger-ui/index.html#/
 
+### DISCLAIMER!!!! 
+Primero debes crear las localizaciones y después los personajes, si quieres crear personajes con ubicaciones inexistentes habrá un error en la respuesta, pero igualmente se guardarán en la base de datos
+
+
 ### La url para el gateway es: http://localhost:8080/api/{microservicio}
 microservicios habilitados: character    location
