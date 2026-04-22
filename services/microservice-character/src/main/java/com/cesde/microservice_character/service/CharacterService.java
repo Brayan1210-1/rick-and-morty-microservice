@@ -13,6 +13,7 @@ import com.cesde.microservice_character.DTO.Response.InfoPageDTO;
 import com.cesde.microservice_character.DTO.Response.LocationDTO;
 import com.cesde.microservice_character.DTO.Response.PageResponseDTO;
 import com.cesde.microservice_character.DTO.request.CharacterRequestDTO;
+import com.cesde.microservice_character.client.LocationClient;
 import com.cesde.microservice_character.entity.CharacterRickAndMorty;
 import com.cesde.microservice_character.exception.custom.NotFound;
 import com.cesde.microservice_character.mapper.CharacterMapper;
@@ -25,6 +26,7 @@ public class CharacterService {
 
 	private final CharacterRepository characterRepo;
 	private final CharacterMapper characterMapper;
+	private final LocationClient locationClient;
 	
 	public PageResponseDTO<CharacterResponseDTO> findAll (int page, int size){
 		
@@ -85,7 +87,6 @@ public class CharacterService {
 		
 		CharacterResponseDTO response = characterMapper.toResponse(entity);
 		
-		//Recordatorio de usar el OpenFeig para llenar los datos con los otros micros
 		response.setOrigin(this.buildLocation(entity.getOrigin()));
 		response.setLocation(this.buildLocation(entity.getLocation()));
 		response.setEpisode(this.buildEpisodes(entity.getEpisodesIds()));
@@ -96,10 +97,14 @@ public class CharacterService {
 	private LocationDTO buildLocation(Integer locationId) {
         if (locationId == null) return null;
         
-        LocationDTO dto = new LocationDTO();
-        dto.setName("Placeholder ID: " + locationId);
-        dto.setUrl(null); // Esto será reemplazado por FeignClient luego
-        return dto;
+       try {
+    	   
+    	   return locationClient.getLocation(locationId);
+       } catch (NotFound e){
+    	   LocationDTO placeholder = new LocationDTO();
+           placeholder.setName("No se pudo obtener la localizacion (ID: " + locationId + ")");
+           return placeholder;
+       }
     }
 	
 	private List<String> buildEpisodes(List<Integer> episodeIds) {
