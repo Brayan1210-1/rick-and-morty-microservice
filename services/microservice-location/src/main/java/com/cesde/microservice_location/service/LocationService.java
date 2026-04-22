@@ -75,7 +75,7 @@ public class LocationService {
 	    info.setCount(locationsPage.getTotalElements());
 	    info.setPages(locationsPage.getTotalPages());
 	    
-	    String baseUrl = "http://localhost:8082/api/locations?page=";
+	    String baseUrl = "http://localhost:8080/api/locations?page=";
 	    info.setNext(locationsPage.hasNext() ? baseUrl + (page + 1) : null);
 	    info.setPrev(locationsPage.hasPrevious() ? baseUrl + (page - 1) : null);
 	    
@@ -92,7 +92,7 @@ public class LocationService {
 		LocationRickAndMorty entity = locationMapper.toEntity(locationDTO);
 		locationRepo.save(entity);
 		
-		entity.setUrl("http://localhost:8082/api/location/" + entity.getId());
+		entity.setUrl("http://localhost:8080/api/location/" + entity.getId());
 		entity = locationRepo.save(entity);
 		
 		LocationResponseDTO response = locationMapper.toResponse(entity);
@@ -106,7 +106,7 @@ public class LocationService {
             return Collections.emptyList();
         }
         return residentIds.stream()
-                .map(id -> "http://localhost:9000/api/characters/" + id)
+                .map(id -> "http://localhost:8080/api/characters/" + id)
                 .toList();
     }
 }

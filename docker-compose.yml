@@ -71,6 +71,18 @@ services:
     networks:
       - rick-morty-network
 
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - rick-morty-network
+
 networks:
   rick-morty-network:
     driver: bridge

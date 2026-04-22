@@ -73,7 +73,7 @@ public class CharacterService {
        
         entity = characterRepo.save(entity);
         
-        entity.setUrl("http://localhost:8081/api/character/" + entity.getId());
+        entity.setUrl("http://localhost:8080/api/character/" + entity.getId());
         
         entity = characterRepo.save(entity);
         
@@ -116,7 +116,7 @@ public class CharacterService {
         if (episodeIds == null || episodeIds.isEmpty()) return List.of();
         
         return episodeIds.stream()
-                .map(id -> "http://localhost:9000/api/v1/episodes/" + id)
+                .map(id -> "http://localhost:8080/api/v1/episodes/" + id)
                 .toList();
     }
 	
@@ -134,7 +134,7 @@ public class CharacterService {
 	    info.setCount(page.getTotalElements());
 	    info.setPages(page.getTotalPages());
 	    
-	    String baseUrl = "http://localhost:8081/api/character?page=";
+	    String baseUrl = "http://localhost:8080/api/character?page=";
 	    info.setNext(page.hasNext() ? baseUrl + (currentPage + 1) : null);
 	    info.setPrev(page.hasPrevious() ? baseUrl + (currentPage - 1) : null);
 	    return info;
