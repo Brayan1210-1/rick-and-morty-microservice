@@ -1,0 +1,80 @@
+services:
+  eureka-server:
+    build:
+      context: ./eurekaserver
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - rick-morty-network
+
+  db-character:
+    image: postgres:17
+    container_name: db-character
+    environment:
+      POSTGRES_DB: characters_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    networks:
+      - rick-morty-network
+    volumes:
+      - character_data:/var/lib/postgresql/data
+
+  db-location:
+    image: postgres:17
+    container_name: db-location
+    environment:
+      POSTGRES_DB: locations_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5434:5432"
+    networks:
+      - rick-morty-network
+    volumes:
+      - location_data:/var/lib/postgresql/data
+
+  microservice-character:
+    build:
+      context: ./services/microservice-character
+      dockerfile: Dockerfile
+    container_name: microservice-character
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_URL=jdbc:postgresql://db-character:5432/characters_db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - eureka-server
+      - db-character
+    networks:
+      - rick-morty-network
+
+  microservice-location:
+    build:
+      context: ./services/microservice-location
+      dockerfile: Dockerfile
+    container_name: microservice-location
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_URL=jdbc:postgresql://db-location:5432/locations_db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - eureka-server
+      - db-location
+    networks:
+      - rick-morty-network
+
+networks:
+  rick-morty-network:
+    driver: bridge
+
+volumes:
+  character_data:
+  location_data:
