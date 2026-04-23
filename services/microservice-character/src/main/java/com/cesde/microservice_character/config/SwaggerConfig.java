@@ -12,7 +12,7 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class SwaggerConfig {
 	@Bean
-	  public OpenAPI usuarioApiOpenAPI() {
+	OpenAPI usuarioApiOpenAPI() {
 	    return new OpenAPI()
 	      .info(new Info()
 	        .title("Microservico de personajes ")
