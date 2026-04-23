@@ -6,6 +6,8 @@ services:
     container_name: eureka-server
     ports:
       - "8761:8761"
+    environment:
+      - EUREKA_HOSTNAME=${EUREKA_HOSTNAME}
     networks:
       - rick-morty-network
 
@@ -45,9 +47,10 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - DB_URL=jdbc:postgresql://db-character:5432/characters_db
+      - DB_URL_CHARACTERS=${DB_URL_CHARACTERS}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_URL=${EUREKA_URL}
     depends_on:
       - eureka-server
       - db-character
@@ -62,9 +65,10 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - DB_URL=jdbc:postgresql://db-location:5432/locations_db
+      - DB_URL_LOCATION=${DB_URL_LOCATION}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_URL=${EUREKA_URL}
     depends_on:
       - eureka-server
       - db-location
@@ -80,6 +84,8 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+    environment:
+      - EUREKA_URL=${EUREKA_URL}
     networks:
       - rick-morty-network
 
